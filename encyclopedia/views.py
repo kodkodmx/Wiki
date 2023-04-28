@@ -97,3 +97,21 @@ def search(request):
         return render(request, "encyclopedia/error.html", {
                 "title": title , "message": "The requested page was not found."
             })
+    
+def new(request):
+    if request.method == "POST":
+        title = request.POST.get('title').capitalize()
+        content = request.POST.get('content')
+        if title in util.list_entries():
+            return render(request, "encyclopedia/error.html", {
+                "title": title , "message": "The requested page already exists."
+            })
+        else:
+            util.save_entry(title, content)
+            markdowner = Markdown()
+            content = markdowner.convert(util.get_entry(title))
+            return render(request, "encyclopedia/content.html", {
+                "content": content , "title": title
+            })
+    else:
+        return render(request, "encyclopedia/new.html")
